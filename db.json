@@ -1,0 +1,68 @@
+{
+  "carro": [
+    {
+      "id": 1,
+      "placa": "ABC1234",
+      "cor": "azul",
+      "marca": "Toyota",
+      "status": "disponivel"
+    },
+    {
+      "id": 2,
+      "placa": "XYZ5678",
+      "cor": "vermelho",
+      "marca": "Honda",
+      "status": "rodando"
+    }
+  ],
+  "motorista": [
+    {
+      "id": 1,
+      "nome": "João Silva",
+      "status": "disponivel"
+    },
+    {
+      "id": 2,
+      "nome": "Maria Oliveira",
+      "status": "rodando"
+    }
+  ],
+  "carro-usuario": [
+    {
+      "id": 1,
+      "dataInicioUtilizacao": "2023-01-01T08:00:00",
+      "dataFimUtilizacao": "2023-01-01T17:00:00",
+      "motorista": {
+        "id": 1,
+        "nome": "João Silva"
+      },
+      "carro": {
+        "id": 1,
+        "placa": "ABC1234",
+        "cor": "Azul",
+        "marca": "Toyota",
+        "status": "disponivel"
+      },
+      "motivoUtilizacao": "Viagem de negócios",
+      "status": "rodando"
+    },
+    {
+      "id": 2,
+      "dataInicioUtilizacao": "2023-02-15T10:30:00",
+      "dataFimUtilizacao": "2023-02-15T15:45:00",
+      "motorista": {
+        "id": 2,
+        "nome": "Maria Oliveira"
+      },
+      "carro": {
+        "id": 2,
+        "placa": "XYZ5678",
+        "cor": "Vermelho",
+        "marca": "Honda",
+        "status": "rodando"
+      },
+      "status": "finalizada",
+      "motivoUtilizacao": "Passeio"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+<div mat-dialog-title>
+  <h1>{{ data ? "Atualizar" : "Adicionar" }} Motorista</h1>
+</div>
+<form [formGroup]="motoristaForm" (ngSubmit)="onSubmit()">
+  <div mat-dialog-content class="content">
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Nome Motorista:</mat-label>
+        <input
+          matInput
+          formControlName="nome"
+          (input)="uppercaseInput($event, 'nome')"
+        />
+      </mat-form-field>
+    </div>
+  </div>
+  <div mat-dialog-actions class="action-btns">
+    <button
+      mat-raised-button
+      type="button"
+      color="warn"
+      [mat-dialog-close]="false"
+    >
+      Cancelar
+    </button>
+    <button style="margin: 10px" mat-raised-button color="accent" type="submit">
+      {{ data ? "Atualizar" : "Salvar" }}
+    </button>
+  </div>
+</form>
