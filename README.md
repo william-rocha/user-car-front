@@ -10,10 +10,12 @@ Rode `npm install`
 
 Rode `ng serve`
 
-## Rodar Fake api no front
+## Observações:
 
-obs. rodei o `json-server` apenas na finalidade de mockar API para construção do front depois que API foi criada não foi mais necessário
-
-Rode `npm install -g json-server`
-
-Rode `json-server --watch 'db.json'`
+- Ao criar um motorista e um carro, ambos ficam com o status "Disponível".
+- Adicionar um motorista e um carro em um "Registro de Uso" altera seus status para "Em uso".
+- Ao finalizar o "Registro de Uso", os status de ambos voltam a ser "Disponível".
+- Para deletar um "Carro" ou "Motorista", ambos devem ter status "Disponível" (sem "Registro de Uso" em andamento).
+- Ao adicionar um novo "Registro de Uso", apenas motoristas e carros disponíveis serão exibidos para registro.
+- Ao deletar um motorista que já teve algum "registro de uso" finalizado, seus campos ficarão cinzas e o status mudará para "Funcionário desligado" na lista de "Registro de Uso".
+- Ao deletar um carro que já teve algum "registro de uso" finalizado, seus campos ficarão cinzas e o status mudará para "Saiu da frota" na lista de "Registro de Uso".

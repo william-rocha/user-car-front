@@ -1,14 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTableDataSource } from '@angular/material/table';
+import { finalize } from 'rxjs';
+import { MaterialModule } from '../../material.module';
 import { CarUserControlService } from '../service/car-user-control.service';
 import { DialogComponent } from './dialog/dialog.component';
 
@@ -17,16 +14,7 @@ import { DialogComponent } from './dialog/dialog.component';
   standalone: true,
   templateUrl: './car-user-list.component.html',
   styleUrls: ['./car-user-list.component.scss'],
-  imports: [
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatTableModule,
-    MatInputModule,
-    CommonModule,
-    MatButtonModule,
-  ],
+  imports: [MaterialModule, CommonModule],
 })
 export class CarUserListComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -34,16 +22,22 @@ export class CarUserListComponent {
 
   displayedColumns: string[] = [
     'id',
+    'motoristaSituacao',
+    'motorista',
+    'carroStatus',
     'placa',
     'cor',
     'marca',
-    'motorista',
-    'motivoUtilizacao',
     'status',
+    'motivoUtilizacao',
+    'dataInicio',
+    'dataFim',
     'acao',
   ];
 
   dataSource!: MatTableDataSource<any>;
+
+  isLoading = true;
 
   constructor(
     private dialog: MatDialog,
@@ -66,41 +60,38 @@ export class CarUserListComponent {
   }
 
   getCarUserList() {
-    this.carUserControlService.getCarUsages().subscribe({
-      next: (res: any) => {
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-        console.log(res);
-      },
-      error: (err: any) => {
-        console.log(err);
-      },
-    });
+    this.isLoading = true;
+    this.carUserControlService
+      .getCarUsages()
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (res: any) => {
+          this.dataSource = new MatTableDataSource(res);
+          this.dataSource.sort = this.sort;
+          this.dataSource.paginator = this.paginator;
+        },
+        error: (err: any) => {
+          alert('Ouve um erro ao carregar Registro de Uso');
+        },
+      });
   }
 
   deleteCarUsage(id: number) {
-    let confirm = window.confirm(
-      'Tem certeza que quer deletar este carro em uso?'
-    );
-    if (confirm) {
-      this.carUserControlService.deleteCarUser(id).subscribe({
-        next: (res) => {
-          alert('Carro em uso deletado!');
-          this.getCarUserList();
-        },
-        error: (err) => {
-          console.log(err);
-        },
-      });
-    }
+    this.carUserControlService.deleteCarUser(id).subscribe({
+      next: (res) => {
+        alert('Registro de Uso de Carro deletado com sucesso!');
+        this.getCarUserList();
+      },
+      error: (err) => {
+        alert('Ocorreu um erro ao deletar Registro de Uso de Carro.');
+      },
+    });
   }
 
   openFormEdit(data: any) {
     const dialogRef = this.dialog.open(DialogComponent, {
       data,
     });
-
     dialogRef.afterClosed().subscribe({
       next: (val) => {
         if (val) {

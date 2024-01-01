@@ -1,5 +1,7 @@
+import { registerLocaleData } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { importProvidersFrom } from '@angular/core';
+import localept from '@angular/common/locales/pt';
+import { LOCALE_ID, importProvidersFrom } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -23,6 +25,7 @@ import {
 } from '@angular/router';
 import { APP_ROUTES } from './app/app-routes';
 import { AppComponent } from './app/app.component';
+registerLocaleData(localept, 'pt');
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -46,6 +49,7 @@ bootstrapApplication(AppComponent, {
       MatPaginatorModule,
       MatSortModule
     ),
+    { provide: LOCALE_ID, useValue: 'pt' },
     provideAnimations(),
     provideRouter(APP_ROUTES, withPreloading(PreloadAllModules)),
   ],

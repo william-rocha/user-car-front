@@ -1,53 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import {
-  MatPaginator,
-  MatPaginatorModule,
-  PageEvent,
-} from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { Subject, debounceTime } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
+import { Subject, debounceTime, finalize } from 'rxjs';
+import { MaterialModule } from '../../material.module';
 import { CarUserControlService } from '../service/car-user-control.service';
 import { DialogComponent } from './dialog/dialog.component';
-
-type PaginationInfo = {
-  itemsPerPage: number;
-  totalItems: number;
-  currentPage: number;
-  totalPages: number;
-};
-
-// Exemplo de uso:
-const paginationInfo: PaginationInfo = {
-  itemsPerPage: 1,
-  totalItems: 2,
-  currentPage: 1,
-  totalPages: 2,
-};
 
 @Component({
   selector: 'app-driver-list',
   standalone: true,
   templateUrl: './driver-list.component.html',
   styleUrls: ['./driver-list.component.scss'],
-  imports: [
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule,
-    MatButtonModule,
-  ],
+  imports: [MaterialModule, FormsModule, CommonModule],
 })
 export class DriverListComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -61,17 +29,7 @@ export class DriverListComponent {
 
   private filtroSubject = new Subject<string>();
 
-  length = 50;
-  pageSize = 1;
-  pageIndex = 0;
-  pageSizeOptions = [5, 10, 25];
-
-  hidePageSize = false;
-  showPageSizeOptions = true;
-  showFirstLastButtons = true;
-  disabled = false;
-
-  pageEvent!: PageEvent;
+  isLoading = true;
 
   constructor(
     private dialog: MatDialog,
@@ -79,44 +37,13 @@ export class DriverListComponent {
   ) {}
 
   ngOnInit(): void {
-    this.getDriverListFilter('', this.pageSize, this.pageIndex);
+    this.getDriverListFilter('');
 
     this.filtroSubject
       .pipe(debounceTime(1200)) // debounce gera intervalo para evitar de bater na api a cada clique no filter
       .subscribe((nome: string) => {
-        this.getDriverListFilter(nome, this.pageSize, this.pageIndex);
+        this.getDriverListFilter(nome);
       });
-  }
-
-  handlePageEvent(e: PageEvent) {
-    this.pageEvent = e;
-    this.length = e.length;
-    this.pageSize = e.pageSize;
-    this.pageIndex = e.pageIndex;
-
-    this.getDriverListFilter(this.nomeFilter, e.pageSize, e.pageIndex + 1);
-  }
-
-  pageDto(pageRes: PaginationInfo) {
-    const PageEventDto: any = {
-      pageIndex: pageRes.currentPage,
-      pageSize: pageRes.itemsPerPage,
-      length: pageRes.totalItems,
-    };
-
-    this.pageEvent = PageEventDto;
-
-    this.length = pageRes.totalItems;
-    this.pageSize = pageRes.itemsPerPage;
-    this.pageIndex = pageRes.currentPage - 1;
-  }
-
-  setPageSizeOptions(setPageSizeOptionsInput: string) {
-    if (setPageSizeOptionsInput) {
-      this.pageSizeOptions = setPageSizeOptionsInput
-        .split(',')
-        .map((str) => +str);
-    }
   }
 
   openAddEditDriverDialog() {
@@ -130,55 +57,47 @@ export class DriverListComponent {
     });
   }
 
-  getDriverList() {
-    this.carUserControlService.getDriverList().subscribe({
-      next: (res: any) => {
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-        console.log(res);
-      },
-      error: (err: any) => {
-        console.log(err);
-      },
-    });
-  }
-
-  getDriverListFilter(
-    nome = this.nomeFilter,
-    size = this.pageSize,
-    page = this.pageIndex
-  ): void {
-    this.carUserControlService.getDriversByNome(nome, size, page).subscribe({
-      next: (res: any) => {
-        this.dataSource = new MatTableDataSource(res.data);
-
-        console.log(res);
-
-        this.pageDto(res.meta);
-      },
-      error: (err: any) => {
-        console.log(err);
-      },
-    });
+  getDriverListFilter(nome = this.nomeFilter): void {
+    this.isLoading = true;
+    this.carUserControlService
+      .getDriversByNome(nome)
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (res: any) => {
+          this.dataSource = new MatTableDataSource(res.data);
+          this.dataSource = new MatTableDataSource(res);
+          this.dataSource.sort = this.sort;
+          this.dataSource.paginator = this.paginator;
+        },
+        error: (err: any) => {
+          console.log(err);
+        },
+      });
   }
 
   applyFilter(ev: any) {
+    this.isLoading = true;
     const nome = ev.target.value.toUpperCase();
 
     this.nomeFilter = nome;
     this.filtroSubject.next(nome);
   }
 
-  deleteDriver(id: number) {
+  deleteDriver(row: any) {
+    if (row.status === 'emUso') {
+      alert(
+        'Para excluir um motorista que está atualmente utilizando um veículo, é necessário primeiro encerrar o registro no módulo "Veículos em Uso".'
+      );
+      return;
+    }
     let confirm = window.confirm(
-      `Tem certeza que quer deletar este motorista do id: ${id}?`
+      `Tem certeza que quer deletar este motorista do id: ${row.id}?`
     );
     if (confirm) {
-      this.carUserControlService.deleteDriver(id).subscribe({
+      this.carUserControlService.deleteDriver(row.id).subscribe({
         next: (res) => {
           alert('Motorista deletado!');
-          this.getDriverList();
+          this.getDriverListFilter();
         },
         error: (err) => {
           alert(`Erro ao deletar motorista: ${err.error.message}`);
@@ -196,7 +115,7 @@ export class DriverListComponent {
     dialogRef.afterClosed().subscribe({
       next: (val) => {
         if (val) {
-          this.getDriverList();
+          this.getDriverListFilter();
         }
       },
     });

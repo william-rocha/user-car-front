@@ -27,7 +27,7 @@ export class CarUserControlService {
   }
 
   updateCar(id: number, data: Car): Observable<any> {
-    return this.httpClient.put(this.baseUrl + `carro/${id}`, data);
+    return this.httpClient.patch(this.baseUrl + `carro/${id}`, data);
   }
 
   getCarList(): Observable<Car[]> {
@@ -43,11 +43,11 @@ export class CarUserControlService {
   }
 
   getCarListFiltered({
-    cor,
-    marca,
+    cor = '',
+    marca = '',
   }: {
-    cor?: string;
-    marca?: string;
+    cor: string;
+    marca: string;
   }): Observable<Car[]> {
     return this.httpClient.get<Car[]>(
       this.baseUrl + `carro/filter?cor=${cor}&marca=${marca}`
@@ -80,14 +80,9 @@ export class CarUserControlService {
     return this.httpClient.delete(this.baseUrl + `motorista/${id}`);
   }
 
-  getDriversByNome(
-    nome: string,
-    size: number,
-    page: number
-  ): Observable<Driver[]> {
+  getDriversByNome(nome: string): Observable<Driver[]> {
     return this.httpClient.get<Driver[]>(
-      this.baseUrl +
-        `motorista/page/filter?nome=${nome}&page=${page}&size=${size}`
+      this.baseUrl + `motorista/filter?nome=${nome}`
     );
   }
 

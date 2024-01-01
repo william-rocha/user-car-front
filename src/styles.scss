@@ -1,16 +1,50 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  margin: 0;
+  padding: 30px;
+}
 
 html,
 body {
   height: 100%;
-}
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .custom-btn {
   justify-content: end;
   display: flex;
   margin-bottom: 20px;
+}
+
+.table-container {
+  position: relative;
+  min-height: 200px;
+  max-height: 400px;
+  overflow: auto;
+
+  .cdk-column-id,
+  .cdk-column-acao {
+    text-align: center !important;
+  }
+
+  .message-empty {
+    height: 140px;
+    text-align: center;
+    font-size: 16px;
+  }
+}
+
+.container-loading {
+  position: relative;
+  .loading-shade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.15);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }

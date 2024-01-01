@@ -15,3 +15,36 @@ mat-form-field {
   opacity: 0.8;
   cursor: pointer;
 }
+
+[role="cell"].funcionario-desligado {
+  opacity: 0.5;
+}
+
+td.funcionario-desligado {
+  ~ td.mat-column-motorista {
+    opacity: 0.5;
+  }
+}
+
+[role="cell"].saiu-fronta {
+  opacity: 0.5;
+}
+
+td.saiu-fronta {
+  ~ td.mat-column-placa,
+  ~ td.mat-column-cor,
+  ~ td.mat-column-marca {
+    opacity: 0.5;
+  }
+}
+
+th.mat-column-carroStatus,
+th.mat-column-placa,
+th.mat-column-cor,
+th.mat-column-marca {
+  background-color: var(--mat-toolbar-container-background-color);
+}
+
+th.mat-column-acao {
+  background-color: var(--mat-toolbar-container-background-color);
+}

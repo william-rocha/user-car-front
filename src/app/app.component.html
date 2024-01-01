@@ -1,10 +1,49 @@
-<mat-sidenav-container class="example-container">
-  <mat-sidenav mode="side" opened>
-    <mat-nav-list>
-      <a mat-list-item routerLink="/car-list">Lista Carros</a>
-      <a mat-list-item routerLink="/driver-list">Lista Motoristas</a>
-      <a mat-list-item routerLink="/car-user-list">Veículos Em Uso </a>
-    </mat-nav-list></mat-sidenav
-  >
-  <mat-sidenav-content><router-outlet></router-outlet></mat-sidenav-content>
-</mat-sidenav-container>
+<ng-container class="custom-sidenav">
+  <mat-toolbar class="example-header mat-elevation-z6" color="secondary">
+    <button mat-icon-button>
+      <mat-icon class="mat-18">menu</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="example-container">
+    <mat-sidenav
+      #sidenav
+      mode="side"
+      opened
+      class="example-sidenav"
+      [fixedInViewport]="options.value.fixed"
+      [fixedTopGap]="options.value.top"
+      [fixedBottomGap]="options.value.bottom"
+    >
+      <div class="sidenav-header">
+        <div class="header-text">
+          <h2>MENU</h2>
+        </div>
+      </div>
+      <mat-nav-list>
+        <a mat-list-item routerLink="/car-list" routerLinkActive>
+          <mat-icon matListItemIcon>directions_car</mat-icon>
+          <span matListItemTitle>Lista Carros</span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item routerLink="/driver-list" routerLinkActive>
+          <mat-icon matListItemIcon>account_box</mat-icon>
+          <span matListItemTitle>Lista motoristas</span>
+        </a>
+      </mat-nav-list>
+      <mat-nav-list>
+        <a mat-list-item routerLink="/car-user-list" routerLinkActive>
+          <mat-icon matListItemIcon>airline_seat_recline_normal </mat-icon>
+          <span matListItemTitle>Registros de Uso</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+
+  <mat-toolbar class="example-footer">Footer</mat-toolbar>
+</ng-container>

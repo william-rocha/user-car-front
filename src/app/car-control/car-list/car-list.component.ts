@@ -1,38 +1,26 @@
+import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
+
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { Subject, debounceTime } from 'rxjs';
+import { MatTableDataSource } from '@angular/material/table';
+import { Subject, debounceTime, finalize } from 'rxjs';
+import { MaterialModule } from '../../material.module';
 import { CarUserControlService } from '../service/car-user-control.service';
 import { DialogComponent } from './dialog/dialog.component';
 
-type CorMarcaFilter = {
-  corMarca: string;
-  valor: string;
+type FilterCar = {
+  cor: string;
+  marca: string;
 };
 @Component({
   selector: 'app-car-list',
   standalone: true,
   templateUrl: './car-list.component.html',
   styleUrls: ['./car-list.component.scss'],
-  imports: [
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    FormsModule,
-  ],
+  imports: [MaterialModule, FormsModule, CommonModule],
 })
 export class CarListComponent {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -49,14 +37,14 @@ export class CarListComponent {
 
   dataSource!: MatTableDataSource<any>;
 
-  filtroCorMarca = {
+  isLoading = true;
+
+  filterCar: FilterCar = {
     cor: '',
     marca: '',
   };
-  marcaFilter = '';
-  corFilter = '';
 
-  private filtroSubject = new Subject<CorMarcaFilter>();
+  private getCarListFilterSubject = new Subject<FilterCar>();
 
   constructor(
     private dialog: MatDialog,
@@ -66,9 +54,9 @@ export class CarListComponent {
   ngOnInit(): void {
     this.getCarList();
 
-    this.filtroSubject
+    this.getCarListFilterSubject
       .pipe(debounceTime(1200)) // debounce gera intervalo para evitar de bater na api a cada clique no filter
-      .subscribe((carFilter: CorMarcaFilter) => {
+      .subscribe((carFilter: FilterCar) => {
         this.getCarListFilter(carFilter);
       });
   }
@@ -85,57 +73,50 @@ export class CarListComponent {
   }
 
   getCarList() {
-    this.carUserControlService.getCarList().subscribe({
-      next: (res: any) => {
-        this.dataSource = new MatTableDataSource(res);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
-        console.log(res);
-      },
-      error: (err: any) => {
-        console.log(err);
-      },
-    });
-  }
-
-  getCarListFilter({ corMarca, valor }: any): void {
-    if ((corMarca = 'cor')) {
-      this.filtroCorMarca = { ...this.filtroCorMarca, cor: valor };
-    } else {
-      this.filtroCorMarca = { ...this.filtroCorMarca, marca: valor };
-    }
+    this.isLoading = true;
     this.carUserControlService
-      .getCarListFiltered(this.filtroCorMarca)
+      .getCarList()
+      .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (res: any) => {
           this.dataSource = new MatTableDataSource(res);
           this.dataSource.sort = this.sort;
           this.dataSource.paginator = this.paginator;
-          console.log(res);
         },
         error: (err: any) => {
-          console.log(err);
+          alert(`Ouve um erro ao carregar lista de Carros.`);
         },
       });
   }
 
-  applyFilter(ev: any, corMarca: string) {
-    const nome = ev.target.value.toUpperCase();
-    if (corMarca == 'cor') {
-      this.corFilter = nome;
-    } else {
-      this.marcaFilter = nome;
-    }
-    const corMarcaFilter = {
-      corMarca: corMarca.toUpperCase(),
-      valor: nome,
-    };
-    this.filtroSubject.next(corMarcaFilter);
+  applyFilter(ev: any, corMarca: 'cor' | 'marca') {
+    this.isLoading = true;
+
+    this.filterCar[corMarca] = ev.target.value.toUpperCase();
+
+    this.getCarListFilterSubject.next(this.filterCar);
+  }
+
+  getCarListFilter({ cor, marca }: FilterCar): void {
+    this.isLoading = true;
+
+    this.carUserControlService
+      .getCarListFiltered({ cor, marca })
+      .pipe(finalize(() => (this.isLoading = false)))
+      .subscribe({
+        next: (res: any) => {
+          this.dataSource = new MatTableDataSource(res);
+          this.dataSource.sort = this.sort;
+          this.dataSource.paginator = this.paginator;
+        },
+        error: (err: any) => {
+          alert(`Ouve um erro ao carregar lista de Carros.`);
+        },
+      });
   }
 
   deleteCar(id: number) {
-    let confirm = window.confirm('Tem certeza que quer deletar este carro?');
-    if (confirm) {
+    if (true) {
       this.carUserControlService.deleteCar(id).subscribe({
         next: (res) => {
           alert('Carro deletado!');

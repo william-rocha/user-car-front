@@ -4,80 +4,140 @@
 </mat-toolbar>
 
 <div class="main-body">
-  <div class="table-container">
-    <div class="example-button-row custom-btn">
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="openAddEditCarUserDialog()"
-      >
-        Registrar uso
-      </button>
-    </div>
-    <table mat-table [dataSource]="dataSource" matSort>
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-        <td mat-cell *matCellDef="let row">{{ row.id }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="placa">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Placa</th>
-        <td mat-cell *matCellDef="let row">{{ row.carro.placa }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="cor">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Cor</th>
-        <td mat-cell *matCellDef="let row">{{ row.carro.cor }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="marca">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Marca</th>
-        <td mat-cell *matCellDef="let row">{{ row.carro.marca }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="motorista">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Motorista</th>
-        <td mat-cell *matCellDef="let row">{{ row.motorista.nome }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="motivoUtilizacao">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-          Motivo Utilização
-        </th>
-        <td mat-cell *matCellDef="let row">{{ row.motivoUtilizacao }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-        <td mat-cell *matCellDef="let row">{{ row.status }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="acao">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Ação</th>
-        <td mat-cell *matCellDef="let row">
-          <span
-            *ngIf="row.status === 'rodando'"
-            (click)="finalizarUtilizacaoCarro(row)"
-            class="action-icon"
-          >
-            <mat-icon color="warn">stop</mat-icon>
-          </span>
-          <span *ngIf="row.status === 'finalizada'" class="action-icon">
-            <mat-icon color="primary">drive_eta</mat-icon>
-          </span>
-          <span (click)="deleteCarUsage(row.id)" class="action-icon">
-            <mat-icon color="warn">delete</mat-icon>
-          </span>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-
-    <mat-paginator
-      [pageSizeOptions]="[5, 10, 25, 100]"
-      aria-label="Select page of users"
-    ></mat-paginator>
+  <div class="example-button-row custom-btn">
+    <button
+      mat-raised-button
+      color="accent"
+      (click)="openAddEditCarUserDialog()"
+    >
+      Registrar uso
+    </button>
   </div>
+  <div class="container-loading">
+    <div *ngIf="isLoading" class="loading-shade">
+      <ng-container>
+        <mat-spinner></mat-spinner>
+      </ng-container>
+    </div>
+    <!-- TABELA -->
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+          <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="motoristaSituacao">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Motorista situação
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [class.funcionario-desligado]="row.motorista.deletedAt"
+          >
+            {{ row.motorista.deletedAt ? "Desligado" : "Funcionário" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="motorista">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Motorista</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.motorista.nome }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="carroStatus" class="disabled-row">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Carro Status
+          </th>
+          <td
+            mat-cell
+            *matCellDef="let row"
+            [class.saiu-fronta]="row.motorista.deletedAt"
+          >
+            {{ row.carro?.deletedAt ? "Saiu da Fronta" : "Ativo na Fronta" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="placa">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Placa</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.carro?.placa }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cor">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Cor</th>
+          <td mat-cell *matCellDef="let row">{{ row.carro?.cor }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="marca">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Marca</th>
+          <td mat-cell *matCellDef="let row">{{ row.carro?.marca }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let row">{{ row.status }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="motivoUtilizacao">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Motivo Utilização
+          </th>
+          <td mat-cell *matCellDef="let row">{{ row.motivoUtilizacao }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dataInicio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Data Inicio</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.dataInicio | date : "short" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="dataFim">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Data Fim</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.dataTermino | date : "short" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acao">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Ações</th>
+          <td mat-cell *matCellDef="let row">
+            <button
+              *ngIf="row.status === 'rodando'"
+              (click)="finalizarUtilizacaoCarro(row)"
+              mat-icon-button
+              matTooltipPosition="before"
+              matTooltip="Finalizar Uso do Carro"
+            >
+              <mat-icon color="primary">departure_board</mat-icon>
+            </button>
+            <button
+              *ngIf="row.status === 'finalizada'"
+              mat-icon-button
+              matTooltipPosition="before"
+              matTooltip="Uso do carro Finalizado"
+            >
+              <mat-icon color="warn">time_to_leave</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <tr class="mat-row" *matNoDataRow class="message-empty">
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            Sem dados para apresentar
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    aria-label="Select page of users"
+  ></mat-paginator>
 </div>

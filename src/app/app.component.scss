@@ -1,8 +1,45 @@
 .example-container {
   position: absolute;
+  top: 60px;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+}
+
+.example-sidenav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+}
+
+.example-header {
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+}
+
+.example-footer {
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: #eee;
+}
+
+.custom-sidenav {
+  transition: all 500ms ease-in-out;
+}
+
+.header-text {
+  h2 {
+    text-align: center;
+    margin: 16px 0px;
+  }
+}
+
+mat-nav-list {
+  mat-icon {
+    margin: 0px 12px;
+  }
 }

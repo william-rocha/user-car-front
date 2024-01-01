@@ -6,23 +6,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSortModule } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MaterialModule } from '../../../material.module';
 import { CarUserControlService } from '../../service/car-user-control.service';
 
 interface Motorista {
@@ -37,25 +22,7 @@ interface Motorista {
   standalone: true,
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.scss'],
-  imports: [
-    MatToolbarModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatRadioModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-  ],
+  imports: [ReactiveFormsModule, HttpClientModule, MaterialModule],
 })
 export class DialogComponent {
   motoristaForm: FormGroup;
@@ -104,7 +71,6 @@ export class DialogComponent {
   saveDriver() {
     this.carUserControlService.addDriver(this.motoristaForm.value).subscribe({
       next: (val: Motorista) => {
-        debugger;
         alert(`Motorista ${val.nome} adicionado com sucesso!`);
         this.motoristaForm.reset();
         this.dialogRef.close(true);
